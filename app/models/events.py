@@ -12,7 +12,7 @@ class EventType(str, Enum):
     UNAUTHORIZED_ACCESS = "UNAUTHORIZED_ACCESS"
 
 class Event(BaseModel):
-    event_id: str
+    event_id: int
     timestamp: datetime = Field(default_factory=datetime.utcnow)
 
     event_type: EventType
