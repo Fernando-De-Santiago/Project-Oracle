@@ -26,3 +26,8 @@ class Event(BaseModel):
     service_name: Optional[str] = None
     error_code: Optional[str] = None
     authentication_reason: Optional[str] = None
+
+class EventCreate(BaseModel):
+    event_type: EventType
+    source: str
+    message: str
