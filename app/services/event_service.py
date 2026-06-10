@@ -22,3 +22,9 @@ def create_event(event_data: EventCreate):
     events.append(new_event)
     return new_event
 
+def delete_event_by_id(id:int):
+    for event in events:
+        if event.event_id == id:
+            events.remove(event)
+            return event
+    return None
