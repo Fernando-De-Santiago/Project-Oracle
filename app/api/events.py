@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
-from services.event_service import get_events, search_event_by_id,create_event, delete_event_by_id
-from models.events import EventCreate
+from services.event_service import get_events, search_event_by_id,create_event, delete_event_by_id, update_event_by_id
+from models.events import EventCreate, EventUpdate
 
 router = APIRouter()
 
@@ -33,3 +33,11 @@ def delete_event(id: int):
         raise HTTPException(status_code=404,detail="Event not found")
     return {"message": f"Event {event.event_id} deleted\n",
             "message": f"{event}"}
+
+@router.put("/events/{id}", status_code=status.HTTP_200_OK)
+
+def update_event(event:EventUpdate,id: int):
+    updated_event = update_event_by_id(event,id)
+    if updated_event == None:
+        raise HTTPException(status_code=404, detail = "Event not found")
+    return updated_event
