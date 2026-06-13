@@ -1,7 +1,7 @@
 from models.api.events import EventResponse, EventCreate, EventUpdate
 from models.core.enums import EventType
-from datetime import datetime
-from sqlalchemy import select
+from datetime import datetime, UTC
+from sqlalchemy import select, inspect
 from sqlalchemy.orm import Session
 from models.db.event import Events
 events=[EventResponse(event_id=1,event_type=EventType.LOGIN_FAILED,source="SERV-01",message="Failed login detected",created_at=datetime.now()),
@@ -18,13 +18,11 @@ def search_event_by_id(id: int):
             return i
     return None
 
-def create_event(event_data: EventCreate):
-    max_id=0
-    for i in events:
-        if i.event_id > max_id:
-            max_id=i.event_id
-    new_event= EventResponse(event_id=max_id+1,event_type=event_data.event_type,source=event_data.source,message=event_data.message)
-    events.append(new_event)
+def create_event(db:Session,event_data: EventCreate):
+    new_event= Events(event_type=event_data.event_type,source=event_data.source,message=event_data.message,created_at=datetime.now(UTC))
+    db.add(new_event)
+    db.commit()
+    db.refresh(new_event)
     return new_event
 
 def delete_event_by_id(id:int):

@@ -10,8 +10,7 @@ router = APIRouter()
 @router.get("/events",response_model=list[EventResponse])
 
 def get_events_route(db: Session = Depends(get_db)):
-    events=db.scalars(select(Events)).all()
-    return events
+    return get_events(db)
 
 @router.get("/events/{id}")
 
@@ -22,11 +21,10 @@ def get_event_by_id(id: int):
         raise HTTPException(status_code=404,detail="Event not found")
     return event
 
-@router.post("/events",status_code=status.HTTP_201_CREATED)
+@router.post("/events",response_model=EventResponse,status_code=status.HTTP_201_CREATED)
 
-def create_event_route(event: EventCreate):
-    new_event=create_event(event)
-    return new_event
+def create_event_route(event:EventCreate,db: Session = Depends(get_db)):
+    return create_event(db,event)
 
 @router.delete("/events/{id}",status_code=status.HTTP_200_OK)
 
