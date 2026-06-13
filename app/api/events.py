@@ -1,13 +1,16 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from services.event_service import get_events, search_event_by_id,create_event, delete_event_by_id, update_event_by_id
-from models.events import EventCreate, EventUpdate
-
+from models.api.events import EventCreate, EventUpdate,EventResponse
+from sqlalchemy.orm import Session
+from sqlalchemy import select
+from db.session import get_db
+from models.db.event import Events
 router = APIRouter()
 
-@router.get("/events")
+@router.get("/events",response_model=list[EventResponse])
 
-def get_events_route():
-    events=get_events()
+def get_events_route(db: Session = Depends(get_db)):
+    events=db.scalars(select(Events)).all()
     return events
 
 @router.get("/events/{id}")
