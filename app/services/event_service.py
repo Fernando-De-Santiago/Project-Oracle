@@ -22,12 +22,13 @@ def create_event(db:Session,event_data: EventCreate):
     db.refresh(new_event)
     return new_event
 
-def delete_event_by_id(id:int):
-    for event in events:
-        if event.event_id == id:
-            events.remove(event)
-            return event
-    return None
+def delete_event_by_id(db:Session,id:int):
+    deleted_event=db.execute(select(Events).where(Events.event_id==id)).scalar_one_or_none()
+    if deleted_event is None:
+        return None
+    db.delete(deleted_event)
+    db.commit()
+    return deleted_event
 
 def update_event_by_id(event_data: EventUpdate,event_id: int):
     for event in events:

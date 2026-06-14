@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from services.event_service import get_events, search_event_by_id,create_event, delete_event_by_id, update_event_by_id
-from models.api.events import EventCreate, EventUpdate,EventResponse
+from models.api.events import EventCreate, EventUpdate,EventResponse, EveentDelete
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from db.session import get_db
@@ -26,14 +26,14 @@ def get_event_by_id(id:int,db: Session = Depends(get_db)):
 def create_event_route(event:EventCreate,db: Session = Depends(get_db)):
     return create_event(db,event)
 
-@router.delete("/events/{id}",status_code=status.HTTP_200_OK)
+@router.delete("/events/{id}",response_model=EveentDelete)
 
-def delete_event(id: int):
-    event = delete_event_by_id(id)
-    if event==None:
+def delete_event(id: int,db: Session = Depends(get_db)):
+    event = delete_event_by_id(db,id)
+    if event is None:
         raise HTTPException(status_code=404,detail="Event not found")
-    return {"message": f"Event {event.event_id} deleted\n",
-            "message": f"{event}"}
+    return {"message": f"Event {event.event_id} deleted\n"}
+
 
 @router.put("/events/{id}", status_code=status.HTTP_200_OK)
 
