@@ -12,11 +12,8 @@ def get_events(db: Session):
     result= db.execute(select(Events)).scalars().all()
     return result
 
-def search_event_by_id(id: int):
-    for i in events:
-        if i.event_id==id:
-            return i
-    return None
+def search_event_by_id(db:Session,id: int):
+    return db.execute(select(Events).where(Events.event_id==id)).scalar_one_or_none()
 
 def create_event(db:Session,event_data: EventCreate):
     new_event= Events(event_type=event_data.event_type,source=event_data.source,message=event_data.message,created_at=datetime.now(UTC))

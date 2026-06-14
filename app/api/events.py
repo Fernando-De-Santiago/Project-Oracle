@@ -12,12 +12,12 @@ router = APIRouter()
 def get_events_route(db: Session = Depends(get_db)):
     return get_events(db)
 
-@router.get("/events/{id}")
+@router.get("/events/{id}",response_model=EventResponse)
 
-def get_event_by_id(id: int):
+def get_event_by_id(id:int,db: Session = Depends(get_db)):
     
-    event = search_event_by_id(id)
-    if event == None:
+    event = search_event_by_id(db,id)
+    if event is None:
         raise HTTPException(status_code=404,detail="Event not found")
     return event
 
