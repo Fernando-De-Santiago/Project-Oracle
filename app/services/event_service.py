@@ -4,16 +4,17 @@ from datetime import datetime, UTC
 from sqlalchemy import select, inspect
 from sqlalchemy.orm import Session
 from models.db.event import Events
-events=[EventResponse(event_id=1,event_type=EventType.LOGIN_FAILED,source="SERV-01",message="Failed login detected",created_at=datetime.now()),
-    EventResponse(event_id=2,event_type=EventType.LOGIN_SUCCESS,source="SERV-01",message="Login successful",created_at=datetime.now()),
-    EventResponse(event_id=3,event_type=EventType.SYSTEM_DOWN,source="SERV-01",message="System down check if powered on",created_at=datetime.now())]
+
 
 def get_events(db: Session):
     result= db.execute(select(Events)).scalars().all()
     return result
 
 def search_event_by_id(db:Session,id: int):
-    return db.execute(select(Events).where(Events.event_id==id)).scalar_one_or_none()
+    event=db.get(Events,id)
+    if event is None:
+        return None
+    return event
 
 def create_event(db:Session,event_data: EventCreate):
     new_event= Events(event_type=event_data.event_type,source=event_data.source,message=event_data.message,created_at=datetime.now(UTC))
@@ -23,17 +24,19 @@ def create_event(db:Session,event_data: EventCreate):
     return new_event
 
 def delete_event_by_id(db:Session,id:int):
-    deleted_event=db.execute(select(Events).where(Events.event_id==id)).scalar_one_or_none()
+    deleted_event=db.get(Events,id)
     if deleted_event is None:
         return None
     db.delete(deleted_event)
     db.commit()
     return deleted_event
 
-def update_event_by_id(event_data: EventUpdate,event_id: int):
-    for event in events:
-        if event.event_id == event_id:
-            event.event_type=event_data.event_type
-            event.message=event_data.message
-            return event
-    return None
+def update_event_by_id(event_data: EventUpdate,event_id: int, db : Session):
+    update_event = db.get(Events,event_id)
+    if update_event is None:
+        return None
+    update_event.event_type = event_data.event_type
+    update_event.message=event_data.message
+    db.commit()
+    db.refresh(update_event)
+    return update_event

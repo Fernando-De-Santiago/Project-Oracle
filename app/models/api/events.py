@@ -19,7 +19,10 @@ class EventCreate(BaseModel):
     event_type: EventType
     source: str
     message: str
-    
+
+class EventDelete(BaseModel):
+    message:str
+
 class EventUpdate(BaseModel):
     event_type: EventType
     message: str

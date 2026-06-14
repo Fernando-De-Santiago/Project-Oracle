@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from services.event_service import get_events, search_event_by_id,create_event, delete_event_by_id, update_event_by_id
-from models.api.events import EventCreate, EventUpdate,EventResponse, EveentDelete
+from models.api.events import EventCreate, EventUpdate,EventResponse, EventDelete
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from db.session import get_db
@@ -26,7 +26,7 @@ def get_event_by_id(id:int,db: Session = Depends(get_db)):
 def create_event_route(event:EventCreate,db: Session = Depends(get_db)):
     return create_event(db,event)
 
-@router.delete("/events/{id}",response_model=EveentDelete)
+@router.delete("/events/{id}",response_model=EventDelete)
 
 def delete_event(id: int,db: Session = Depends(get_db)):
     event = delete_event_by_id(db,id)
@@ -35,10 +35,10 @@ def delete_event(id: int,db: Session = Depends(get_db)):
     return {"message": f"Event {event.event_id} deleted\n"}
 
 
-@router.put("/events/{id}", status_code=status.HTTP_200_OK)
+@router.put("/events/{id}", response_model=EventResponse)
 
-def update_event(event:EventUpdate,id: int):
-    updated_event = update_event_by_id(event,id)
-    if updated_event == None:
+def update_event(event:EventUpdate,id: int,db:Session = Depends(get_db)):
+    updated_event = update_event_by_id(event,id,db)
+    if updated_event is None:
         raise HTTPException(status_code=404, detail = "Event not found")
     return updated_event
