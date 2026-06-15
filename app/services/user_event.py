@@ -25,8 +25,8 @@ def create_user(db: Session, user_data:UserRegister):
 def authenticate_user(db: Session, user_data:UserLogin):
     user = db.query(Users).filter(Users.email == user_data.email).first()
     if not user:
-        return None
+        return False, None, "Username is incorrect"
     password_valid = checkpw(user_data.password.encode('utf-8'),user.password_hash.encode('utf-8'))
     if not password_valid:
-        return None
-    return user
+        return False, user, "Password is incorrect"
+    return True, user, "Logging in"

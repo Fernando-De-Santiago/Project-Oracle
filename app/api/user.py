@@ -15,3 +15,11 @@ def create_user_route(user: UserRegister, db: Session = Depends(get_db)):
     if not success:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail=message)
     return new_user
+
+@router.post("/users",response_model=UserResponse, status_code=status.HTTP_202_ACCEPTED)
+
+def login_user(user:UserLogin, db: Session = Depends(get_db)):
+    success, user_login, message = authenticate_user(db, user)
+    if not success:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail=message)
+    return user_login
