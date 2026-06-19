@@ -1,5 +1,5 @@
 from config.settings import settings
-from models.db.user import Users
+from models.db.user import User
 from jose import jwt
 from jose.exceptions import ExpiredSignatureError, JWTError
 from datetime import datetime, timedelta, timezone
@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 # ---------------- TOKEN CREATION ----------------
 
-def create_token(user: Users):
+def create_token(user: User):
     payload = {
         "sub": str(user.user_id),
         "username": user.username,
@@ -55,4 +55,4 @@ def get_current_user_from_token(db: Session, token: str):
     if not user_id:
         return None
 
-    return db.get(Users, int(user_id))
+    return db.get(User, int(user_id))

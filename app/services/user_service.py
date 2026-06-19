@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-from models.db.user import Users
+from models.db.user import User
 from models.schemas.users import UserRegister, UserLogin
 
 from bcrypt import hashpw, gensalt, checkpw
@@ -11,14 +11,14 @@ from bcrypt import hashpw, gensalt, checkpw
 
 def create_user(db: Session, user_data: UserRegister):
     existing_email = db.execute(
-        select(Users).where(Users.email == user_data.email)
+        select(User).where(User.email == user_data.email)
     ).scalar_one_or_none()
 
     if existing_email:
         return False, None, "Email already in use"
 
     existing_username = db.execute(
-        select(Users).where(Users.username == user_data.username)
+        select(User).where(User.username == user_data.username)
     ).scalar_one_or_none()
 
     if existing_username:
@@ -29,7 +29,7 @@ def create_user(db: Session, user_data: UserRegister):
         gensalt()
     ).decode("utf-8")
 
-    new_user = Users(
+    new_user = User(
         username=user_data.username,
         email=user_data.email,
         password_hash=password_hash
@@ -46,7 +46,7 @@ def create_user(db: Session, user_data: UserRegister):
 
 def authenticate_user(db: Session, user_data: UserLogin):
     user = db.execute(
-        select(Users).where(Users.email == user_data.email)
+        select(User).where(User.email == user_data.email)
     ).scalar_one_or_none()
 
     if not user:
