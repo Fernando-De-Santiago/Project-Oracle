@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from datetime import datetime
 from models.core.enums import EventType
 
@@ -9,20 +9,23 @@ class EventResponse(BaseModel):
 
     event_type: EventType
     source: str
+    message: str | None = None
 
-    message: str
+    model_config = {
+        "from_attributes": True
+    }
 
-    class Config:
-        from_attributes = True
 
 class EventCreate(BaseModel):
     event_type: EventType
     source: str
     message: str
 
-class EventDelete(BaseModel):
-    message:str
 
 class EventUpdate(BaseModel):
     event_type: EventType
+    message: str
+
+
+class EventDelete(BaseModel):
     message: str

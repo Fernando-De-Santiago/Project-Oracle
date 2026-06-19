@@ -15,3 +15,4 @@ class UserResponse(BaseModel):
     username : str
     email: EmailStr
     created_at: datetime
+    model_config = {"from_attributes": True}
