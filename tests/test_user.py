@@ -1,58 +1,49 @@
 from services.user_service import create_user
 from models.schemas.users import UserRegister
 
+
 def test_sample_user_fixture(user_data):
     assert user_data["email"] == "test@test.com"
 
-def test_create_user_success(db_session):
-    user=UserRegister(
-        email="test@test.com",
-        username="testuser1234",
-        password="Password12345"
-    )
-    success, new_user, message = create_user(db_session,user)
+
+def test_create_user_success(db_session, user_data):
+    user = UserRegister(**user_data)
+
+    success, new_user, message = create_user(db_session, user)
+
     assert success is True
-    assert new_user.email == "test@test.com"
-    assert new_user.username == "testuser1234"
+    assert new_user.email == user_data["email"]
+    assert new_user.username == user_data["username"]
+    assert new_user.password_hash != user_data["password"]
 
-    assert new_user.password_hash != "Password12345"
+def test_duplicate_email_fails(db_session, user_data):
+    # First user creation
+    create_user(db_session, UserRegister(**user_data))
 
-def test_duplicate_email_fails(db_session):
-    user=UserRegister(
-        email="test@test.com",
-        username="testuser1234",
-        password="Password12345"
+    # Duplicate email attempt
+    duplicate = UserRegister(
+        email=user_data["email"],
+        username="different_username",
+        password=user_data["password"]
     )
-    first_success, first_new_user, first_message = create_user(db_session,user)
-    assert first_success is True
-    assert first_new_user is not None
-    duplicate_email=UserRegister(
-        email="test@test.com",
-        username="testuser12345",
-        password="Password12345"
-    )
-    second_success, second_new_user, second_message = create_user(db_session,duplicate_email)
-    assert second_success is False
-    assert second_new_user is None
-    assert second_message == "Email already in use"
 
-def test_duplicate_username_fails(db_session):
-    user=UserRegister(
-        email="test@test.com",
-        username="testuser1234",
-        password="Password12345"
+    success, user, message = create_user(db_session, duplicate)
+
+    assert success is False
+    assert user is None
+    assert message == "Email already in use"
+
+def test_duplicate_username_fails(db_session, user_data):
+    create_user(db_session, UserRegister(**user_data))
+
+    duplicate = UserRegister(
+        email="different@email.com",
+        username=user_data["username"],
+        password=user_data["password"]
     )
-    first_success, first_new_user, first_message = create_user(db_session,user)
-    assert first_success is True
-    assert first_new_user is not None
-    duplicate_username=UserRegister(
-        email="test1@test.com",
-        username="testuser1234",
-        password="Password12345"
-    )
-    second_success, second_new_user, second_message = create_user(db_session,duplicate_username)
-    assert second_success is False
-    assert second_new_user is None
-    assert second_message == "Username already in use"
-   
-   
+
+    success, user, message = create_user(db_session, duplicate)
+
+    assert success is False
+    assert user is None
+    assert message == "Username already in use"
